@@ -208,7 +208,11 @@ class FUN
 	public function logout(){
 		unset($_COOKIE[$this->getAppId().'_funsession'] );
 	}
-	
+
+	public function getGameMallUrl(){
+		return 'http://gamemall.wayi.com.tw/shopping/default.asp?action=wgs_list
+'; 
+	}	
 
 	/**
 	 * 設定上傳檔案狀態

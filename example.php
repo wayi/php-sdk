@@ -15,21 +15,22 @@ $fun = new FUN($config);
 
 //4.取得並夾帶access token
 $session = $fun->getSession();      
-if(!$session){
+if($session){
+	//5.調用api(取得好友)
+	try {
+		$me = $fun->Api('/v1/me/user','GET');
+		$friends = $fun->Api('/v1/me/friends/app/','GET',array("start"=>0,"count"=>10));
+
+		$logoutUrl = $fun->getLogoutUrl();
+	} catch (ApiException $e) {
+		echo "錯誤代碼：".$e->getCode() . "<br/>";
+		echo "說明：".$e->getMessage();
+		exit();
+	}
+}else{
 	$loginUrl = $fun->getLoginUrl();
 }
 
-//5.調用api(取得好友)
-try {
-	$me = $fun->Api('/v1/me/user','GET');
-	$friends = $fun->Api('/v1/me/friends/app/','GET',array("start"=>0,"count"=>10));
-
-	$logoutUrl = $fun->getLogoutUrl();
-} catch (ApiException $e) {
-	echo "錯誤代碼：".$e->getCode() . "<br/>";
-	echo "說明：".$e->getMessage();
-	exit();
-}
 ?>
 
 <?php if(isset($me) && $me): ?>
