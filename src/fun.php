@@ -1,4 +1,10 @@
-<?php
+ï»¿<?php
+/*
+ * title: fun.php
+ * author: kevyu
+ * version: v1.2.3
+ * uodated: 2011/10/31
+ */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
 	throw new Exception('FUN needs the CURL PHP extension.');
@@ -13,126 +19,148 @@ class FUN
 	 * API_URL
 	 */
 	const API_URL = 'http://api.fun.wayi.com.tw/';
+	protected $dubugging = false;
 
-	/**
-	 * À³¥Îµ{¦¡½s¸¹.
-	 */
 	protected $appId;
-
-	/**
-	 * À³¥Îµ{¦¡±KÆ_.
-	 */
 	protected $apiSecret;
-
-	/**
-	 * °O¿ý·í«eUserµn¤Jª¬ºA(access_token)
-	 */
-	protected $session;
-
-	protected $redirectUri;
-
-	/**
-	 * ¨Ï¥ÎÀÉ®×¤W¶Ç
-	 */
-	protected $fileUploadSupport;
+	protected $session;		//user login status(access_token)
+	protected $fileUploadSupport; 	//support file upload
+ 	protected $redirectUri;
+	protected $config;
 
 	public function __construct($config) {
 		$this->setAppId($config['appId']);
 		$this->setApiSecret($config['secret']);
 		if(!empty($config['redirect_uri']))
 			$this->setRedirectUri($config['redirect_uri']);
+
+
+		$this->config = $config;
+
+		if(isset($config['debug']) && $config['debug']){
+			$this->debugging = true;
+		}
+
+		if(isset($_GET['logout']))
+			$this->logout();
 	}
 
-	/**
-	 * ³]©wÀ³¥Îµ{¦¡½s¸¹.
-	 */
 	public function setAppId($appId) {
 		$this->appId = $appId;
 		return $this;
 	}
 
-	/**
-	 * ¨ú±oÀ³¥Îµ{¦¡½s¸¹.
-	 */
 	public function getAppId() {
 		return $this->appId;
 	}
 
-	/**
-	 * ³]©wÀ³¥Îµ{¦¡±KÆ_.
-	 */
 	public function setApiSecret($apiSecret) {
 		$this->apiSecret = $apiSecret;
 		return $this;
 	}
 
-	/**
-	 * ¨ú±oÀ³¥Îµ{¦¡±KÆ_.
-	 */
 	public function getApiSecret() {
 		return $this->apiSecret;
 	}
 
-	/**
-	 * ³]©wÀ³¥Îµ{¦¡±KÆ_.
-	 */
 	public function setRedirectUri($uri) {
 		$this->redirectUri = $uri;
 		return $this;
 	}
 
-	/**
-	 * ¨ú±oµn¤Jª¬ºA
-	 */
 	public function getSession() {
 		if ($this->session)
 			return $this->session;
-		else {
-			$session = array();
-			//§Q¥Îauth_code´«¨úaccess_token
-			if (isset($_GET['code']))
-			{
-				$params = array(
+
+		$session = array();
+		if (isset($_GET['code']))
+		{
+			$this->log('[getSession]get code');
+			//auth_code exchange token
+			$params = array(
 					'code' 		=> $_GET['code'],
 					'grant_type' 	=> 'authorization_code',
 					'redirect_uri'	=> $this->redirectUri,
 					'client_id' 	=> $this->appId,
 					'client_secret' => $this->apiSecret
-				);
+				       );
 
-				$result = json_decode($this->makeRequest(self::API_URL.'oauth/token', $params, $method="GET"));
-				if (is_array($result) && isset($result['error'])) {
-					$e = new ApiException($result);
-					throw $e;
-				}else
-					$session = $result;
+			$result = json_decode($this->makeRequest(self::API_URL.'oauth/token', $params, $method="GET"));
+			
+			if (is_array($result) && isset($result['error'])) {
+				$e = new ApiException($result);
+				throw $e;
+				return false;
+			}
 
-			}else if (isset($_REQUEST['session'])){
-				$session = json_decode(
+			$session = $result;
+
+			//if currency is on, check is it vaild and append skey
+			if($_REQUEST['skey']){
+				$session = (array)$session;
+				$this->log('[getSession]get skey');
+				$session['skey'] = $_REQUEST['skey'];
+				$this->log('[getSession]done');
+			}
+		}else if (isset($_REQUEST['session'])){
+			$this->log('[getSession]get session');
+			$session = json_decode(
 					get_magic_quotes_gpc()
 					? stripslashes(urldecode($_REQUEST['session']))
 					: urldecode($_REQUEST['session']),
-						true
+					true
 					);
-			}else if (isset($_COOKIE[$this->getAppId().'_funsession'])){
-				$session = json_decode(
+		}else if (isset($_COOKIE[$this->getAppId().'_funsession'])){
+			$this->log('[getSession]get cookie');
+			$session = json_decode(
 					stripslashes($_COOKIE[$this->getAppId().'_funsession']),
 					true
-				);
+					);
 
-			}
-
-			if($session){
-				$this->setSession($session);
-				return $session;
-			}
-			else
-				return false;
 		}
+		//if session
+		if($session){
+			//vlidate access token
+			$this->setSession($session);
+		}
+
+		if($this->isCurrencyMode() && !$this->getCurrencySkey()){
+			$this->log('get currency failed');
+			return false;
+		}
+
+
+		return ($session)?$session:false;
+
+	}
+
+	function isCurrencyMode(){
+		return isset($this->config['currency']);
+	}
+
+	function getCurrencySkey(){
+		//echo $_SESSION['fun']['api']['skey'];
+		if(isset($this->session['skey'])){
+			return $this->session['skey'];
+		}
+		return false;
+
+	}
+
+	function getCurrencyUrl(){
+		$this->log('[getCurrencyUrl]get currency url');
+
+		//0.precondition
+		if(!$this->getCurrencySkey())
+			return $this->getLoginUrl();
+
+		$result = $this->Api('/v1/me/currency','GET',array('skey' => $this->getCurrencySkey()));
+
+		return $result;
 	}
 
 	/**
-	 * ³]©w¨Ï¥ÎªÌµn¤Jª¬ºA
+	 * setup user status
 	 *
 	 * @param object $session		
 	 * @return void
@@ -143,23 +171,49 @@ class FUN
 		$this->setCookie($sessionName, json_encode($this->session));
 	}
 
-	/**
-	 * ¨ú±oaccess_token
-	 * @return string
-	 */
 	public function getAccessToken() {
-		$session = $this->getSession();
-		if ($session) {
-			return $session['access_token'];
+		//$session = $this->getSession();
+		if ($this->session) {
+			return $this->session['access_token'];
 		}else{
 			return false;
 		}
 	}
 
+	/*
+  	 * if user not login, provide login url
+	 * @return string
+	 */
+	public function getLoginUrl() {
+		//0.validate
+		$clean['redirect_uri'] = $this->config['redirect_uri'];
+		$clean['scope'] =  (empty($this->config['scope']))?'':$this->config['scope'];
+		$clean['game_type'] = (isset($this->config['currency']) && isset($this->config['currency']['game_type']))?$this->config['currency']['game_type']:'';
+
+		//without currency, it will login by session or cookies
+		$params = array(
+				'response_type' => 'code',
+				'redirect_uri' => urlencode($clean['redirect_uri']),
+				'client_id' => urlencode($this->appId),
+				'scope' => urlencode($clean['scope']),
+				'currency' => urlencode($clean['game_type'])
+			       );
+		return self::API_URL . "oauth/authorize?" .  http_build_query($params);
+	}
+
+	public function getLogoutUrl(){
+		$session = $this->getSession();
+		return '?logout='. $session['access_token'];
+	}
+	public function logout(){
+		unset($_COOKIE[$this->getAppId().'_funsession'] );
+	}
+	
+
 	/**
-	 * ³]©w¤W¶ÇÀÉ®×ª¬ºA
+	 * è¨­å®šä¸Šå‚³æª”æ¡ˆç‹€æ…‹
 	 *
-	 * @param bool $$fileUploadSupport		³]©wª¬ºA
+	 * @param bool $$fileUploadSupport		è¨­å®šç‹€æ…‹
 	 * @return void
 	 */
 	public function setFileUploadSupport($fileUploadSupport) {
@@ -167,41 +221,23 @@ class FUN
 	}
 
 	/**
-	 * ¨Ï¥Î¤W¶ÇÀÉ®×
+	 * use file 
 	 * @return bool
 	 */
 	public function useFileUploadSupport() {
 		return $this->fileUploadSupport;
 	}
 
+	
 	/**
-	 * ¨ú±oµn¤Jºô§}
-	 * @return string
-	 */
-	public function getLoginUrl($config=array()) {
-		//0.validate
-		$clean['redirect_uri'] = (empty($config['redirect_uri']))?$this->redirectUri:$config['redirect_uri'];
-		$clean['scope'] =  (empty($config['scope']))?'':$config['scope'];
-
-		$params = array(
-			'response_type=code',
-			'redirect_uri=' . urlencode($clean['redirect_uri']),
-			'client_id=' . urlencode($this->appId),
-			'scope=' . urlencode($clean['scope'])
-		);
-		$params = implode('&', $params);
-		return self::API_URL . "oauth/authorize?" . $params;
-	}
-
-	/**
-	 * x
-	 * °õ¦æAPI
+	 * è•žAPI
 	 * @return string
 	 */
 	public function Api($path, $method = 'GET', $params = array()) {
 		$params['method'] = $method;
 
 		if (!isset($params['access_token'])) {
+			$this->session = (array)$this->session;		//sometimes it is stdClass, and it will cause error
 			$params['access_token'] = $this->session['access_token'];
 		}
 
@@ -223,13 +259,14 @@ class FUN
 
 
 	protected function makeRequest($url, $params, $method="GET") {
+		$this->log('curl: '. $url);
 		$ch = curl_init();
 		$opts = array(
-			CURLOPT_CONNECTTIMEOUT => 10,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT        => 60,
-			CURLOPT_USERAGENT      => 'funapi'
-		);
+				CURLOPT_CONNECTTIMEOUT => 10,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_TIMEOUT        => 60,
+				CURLOPT_USERAGENT      => 'funapi'
+			     );
 
 		switch ($method) {
 			case 'POST':
@@ -264,12 +301,12 @@ class FUN
 		curl_setopt_array($ch, $opts);
 		$result = curl_exec($ch);
 		$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+		$this->log(sprintf('done :%s result:%s ',  $code , $result));
 		if ($code != 200) {
 			$e = new ApiException(array(
-				'error_code' => $code,
-				'error_description'=> $result)
-			);
+						'error_code' => $code,
+						'error_description'=> $result)
+					);
 			curl_close($ch);
 			throw $e;
 		}
@@ -279,7 +316,7 @@ class FUN
 
 
 	/**
-	 * ³]©wcookie
+	 * setup cookie
 	 *
 	 * @param string $name	
 	 * @param string $value
@@ -291,7 +328,7 @@ class FUN
 	}
 
 	/**
-	 * ²M°£cookie
+	 * clear cookie
 	 *
 	 * @param string $name	
 	 * @param string $value
@@ -303,7 +340,7 @@ class FUN
 	}
 
 	/**
-	 * ²£¥ÍURL
+	 * generater URL
 	 *
 	 * @param string $path	
 	 * @param string $params
@@ -322,6 +359,13 @@ class FUN
 		}
 		return $url;
 	}
+function log($message){
+	if(!$this->debugging)
+		return;
+	echo '<p style="color:grey;">DEBUG: ';
+	print_r($message);
+	echo '</p>';
+}
 }
 
 class ApiException extends Exception
@@ -344,13 +388,27 @@ class ApiException extends Exception
 		return $this->result;
 	}
 
+	public function errorMessage(){
+	}
 	public function printMessage(){
 		echo 'Error Code:' .  $this->result['error_code'] . '<br/>';
 		echo 'Message:' . $this->getMessage() . '<br/>';
 		echo 'Description:' . $this->result['error_description'] . '<br/>';
-		echo 'Stacktrace:' . $this->getTraceAsString() . '<br/>';
-	}
+		echo 'Stack trace:<br/>';
+		$traces = $this->getTrace();		
 
+		$result = '';
+		foreach($traces as $trace){
+			if($trace['class'] != '') {
+				$result .= $trace['class'];
+				$result .= '->';
+			}
+			$result .= $trace['function'];
+			$result .= '();<br />';
+		}
+		echo $result;
+
+	}
 	public function getType() {
 		if (isset($this->result['error'])) {
 			$error = $this->result['error'];
@@ -360,3 +418,4 @@ class ApiException extends Exception
 	}
 }
 ?>
+
