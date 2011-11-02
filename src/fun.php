@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.3
- * uodated: 2011/10/31
+ * version: v1.2.4
+ * uodated: 2011/11/2
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
