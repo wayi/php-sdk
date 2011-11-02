@@ -18,7 +18,9 @@ class FUN
 	/**
 	 * API_URL
 	 */
-	const API_URL = 'http://api.fun.wayi.com.tw/';
+	const API_URL_PRODUCTION = 'http://api.fun.wayi.com.tw/';
+	const API_URL_TESTING = 'http://10.0.2.106/';
+	private $API_URL;
 	protected $dubugging = false;
 
 	protected $appId;
@@ -37,8 +39,14 @@ class FUN
 
 		$this->config = $config;
 
-		if(isset($config['debug']) && $config['debug']){
+		if(isset($config['debugging']) && $config['debugging']){
 			$this->debugging = true;
+		}
+		if(isset($config['testing']) && $config['testing']){
+			$this->testing = true;
+			$this->API_URL = self::API_URL_TESTING;
+		}else{
+			$this->API_URL = self::API_URL_PRODUCTION;
 		}
 
 		if(isset($_GET['logout']))
@@ -85,7 +93,7 @@ class FUN
 					'client_secret' => $this->apiSecret
 				       );
 
-			$result = json_decode($this->makeRequest(self::API_URL.'oauth/token', $params, $method="GET"));
+			$result = json_decode($this->makeRequest($this->API_URL.'oauth/token', $params, $method="GET"));
 			
 			if (is_array($result) && isset($result['error'])) {
 				$e = new ApiException($result);
@@ -198,7 +206,7 @@ class FUN
 				'scope' => urlencode($clean['scope']),
 				'currency' => urlencode($clean['game_type'])
 			       );
-		return self::API_URL . "oauth/authorize?" .  http_build_query($params);
+		return $this->API_URL . "oauth/authorize?" .  http_build_query($params);
 	}
 
 	public function getLogoutUrl(){
@@ -351,7 +359,7 @@ class FUN
 	 * @return void
 	 */
 	protected function getUrl($path='', $params=array()) {
-		$url = self::API_URL;
+		$url = $this->API_URL;
 		if ($path) {
 			if ($path[0] === '/') {
 				$path = substr($path, 1);

@@ -7,7 +7,7 @@ $config = array(
 	'appId'  	=> '421',                                 //your app id
 	'secret' 	=> '9f8d818cbb65c83d6b84cb89f001b99e',    //you app secret'
 	'redirect_uri'	=> 'http://api.fun.wayi.com.tw/example/api/webgame/app.php',
-	'debug'		=> true,
+	'debugging'		=> true,
 );
 
 //3.實體化
