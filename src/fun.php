@@ -3,7 +3,7 @@
  * title: fun.php
  * author: kevyu
  * version: v1.2.4
- * uodated: 2011/11/2
+ * updated: 2011/11/2
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
@@ -22,6 +22,7 @@ class FUN
 	const API_URL_TESTING = 'http://10.0.2.106/';
 	private $API_URL;
 	protected $dubugging = false;
+	protected $testing = false;
 
 	protected $appId;
 	protected $apiSecret;
@@ -51,6 +52,10 @@ class FUN
 
 		if(isset($_GET['logout']))
 			$this->logout();
+	}
+
+	public function getApiUrl(){
+		return $this->API_URL;
 	}
 
 	public function setAppId($appId) {
@@ -192,9 +197,9 @@ class FUN
   	 * if user not login, provide login url
 	 * @return string
 	 */
-	public function getLoginUrl() {
+	public function getLoginUrl($return_uri) {
 		//0.validate
-		$clean['redirect_uri'] = $this->config['redirect_uri'];
+		$clean['redirect_uri'] = (isset($this->config['redirect_uri']))?$this->config['redirect_uri']:'';
 		$clean['scope'] =  (empty($this->config['scope']))?'':$this->config['scope'];
 		$clean['game_type'] = (isset($this->config['currency']) && isset($this->config['currency']['game_type']))?$this->config['currency']['game_type']:'';
 
@@ -218,8 +223,7 @@ class FUN
 	}
 
 	public function getGameMallUrl(){
-		return 'http://gamemall.wayi.com.tw/shopping/default.asp?action=wgs_list
-'; 
+		return 'http://gamemall.wayi.com.tw/shopping/default.asp?action=wgs_list'; 
 	}	
 
 	/**
