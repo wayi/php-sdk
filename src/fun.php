@@ -21,7 +21,7 @@ class FUN
 	const API_URL_PRODUCTION = 'http://api.fun.wayi.com.tw/';
 	const API_URL_TESTING = 'http://10.0.2.106/';
 	private $API_URL;
-	protected $dubugging = false;
+	protected $debugging = false;
 	protected $testing = false;
 
 	protected $appId;
