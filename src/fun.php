@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.5
- * updated: 2011/11/7
+ * version: v1.2.7
+ * updated: 2011/11/18
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
@@ -19,6 +19,7 @@ class FUN
 	 * API_URL
 	 */
 	const API_URL_PRODUCTION = 'http://api.fun.wayi.com.tw/';
+	//const API_URL_TESTING = 'http://funtest.wayi.com.tw/api';
 	const API_URL_TESTING = 'http://10.0.2.106/';
 	private $API_URL;
 	protected $debugging = false;
@@ -179,7 +180,7 @@ class FUN
 	 * @return void
 	 */
 	public function setSession($session=null) {
-		$this->session = $session;
+		$this->session = (array) $session;
 		$sessionName = $this->getAppId().'_funsession';
 		$this->setCookie($sessionName, json_encode($this->session));
 	}
@@ -262,7 +263,7 @@ class FUN
 				$params[$key] = json_encode($value);
 			}
 		}
-		$result = json_decode($this->makeRequest($this->getUrl($path), $params),true);
+		$result = json_decode($this->makeRequest($this->getUrl($path), $params, $method),true);
 
 
 		if (is_array($result) && isset($result['error'])) {
