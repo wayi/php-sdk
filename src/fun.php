@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.7
- * updated: 2011/11/18
+ * version: v1.2.8
+ * updated: 2011/11/21
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
@@ -110,7 +110,7 @@ class FUN
 			$session = $result;
 
 			//if currency is on, check is it vaild and append skey
-			if($_REQUEST['skey']){
+			if(isset($_REQUEST['skey'])){
 				$session = (array)$session;
 				$this->log('[getSession]get skey');
 				$session['skey'] = $_REQUEST['skey'];
