@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.8
- * updated: 2011/11/21
+ * version: v1.2.9
+ * updated: 2011/11/22
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
@@ -19,8 +19,7 @@ class FUN
 	 * API_URL
 	 */
 	const API_URL_PRODUCTION = 'http://api.fun.wayi.com.tw/';
-	//const API_URL_TESTING = 'http://funtest.wayi.com.tw/api';
-	const API_URL_TESTING = 'http://10.0.2.106/';
+	const API_URL_TESTING = 'http://funtest.wayi.com.tw/api_test/';
 	private $API_URL;
 	protected $debugging = false;
 	protected $testing = false;
@@ -117,7 +116,7 @@ class FUN
 				$this->log('[getSession]done');
 			}
 		}else if (isset($_REQUEST['session'])){
-			$this->log('[getSession]get session');
+			$this->log('[getSession]from session');
 			$session = json_decode(
 					get_magic_quotes_gpc()
 					? stripslashes(urldecode($_REQUEST['session']))
@@ -125,12 +124,11 @@ class FUN
 					true
 					);
 		}else if (isset($_COOKIE[$this->getAppId().'_funsession'])){
-			$this->log('[getSession]get cookie');
+			$this->log('[getSession]from cookie');
 			$session = json_decode(
 					stripslashes($_COOKIE[$this->getAppId().'_funsession']),
 					true
 					);
-
 		}
 		//if session
 		if($session){
@@ -143,9 +141,7 @@ class FUN
 			return false;
 		}
 
-
 		return ($session)?$session:false;
-
 	}
 
 	function isCurrencyMode(){
@@ -217,10 +213,13 @@ class FUN
 
 	public function getLogoutUrl(){
 		$session = $this->getSession();
-		return '?logout='. $session['access_token'];
+		return '?logout='. md5(time());
 	}
 	public function logout(){
-		unset($_COOKIE[$this->getAppId().'_funsession'] );
+		$cookieName = $this->getAppId().'_funsession';
+                $this->log(sprintf('logout: unset cookie(%s)', $cookieName));
+                //unset($_COOKIE[$cookieName] );
+                setcookie($cookieName, '', time()-36000);
 	}
 
 	public function getGameMallUrl(){
