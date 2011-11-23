@@ -2,7 +2,7 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.9
+ * version: v1.2.10
  * updated: 2011/11/22
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
@@ -19,7 +19,7 @@ class FUN
 	 * API_URL
 	 */
 	const API_URL_PRODUCTION = 'http://api.fun.wayi.com.tw/';
-	const API_URL_TESTING = 'http://funtest.wayi.com.tw/api_test/';
+	const API_URL_TESTING = 'http://apitest.fun.wayi.com.tw/';
 	private $API_URL;
 	protected $debugging = false;
 	protected $testing = false;
@@ -82,6 +82,7 @@ class FUN
 	}
 
 	public function getSession() {
+		$this->log('[getSession]');
 		if ($this->session)
 			return $this->session;
 
@@ -123,13 +124,15 @@ class FUN
 					: urldecode($_REQUEST['session']),
 					true
 					);
-		}else if (isset($_COOKIE[$this->getAppId().'_funsession'])){
+		}else if (isset($_COOKIE[$this->getCookieName()])){
 			$this->log('[getSession]from cookie');
 			$session = json_decode(
 					stripslashes($_COOKIE[$this->getAppId().'_funsession']),
 					true
 					);
 		}
+
+		$this->log($this->getCookieName());
 		//if session
 		if($session){
 			//vlidate access token
@@ -177,8 +180,7 @@ class FUN
 	 */
 	public function setSession($session=null) {
 		$this->session = (array) $session;
-		$sessionName = $this->getAppId().'_funsession';
-		$this->setCookie($sessionName, json_encode($this->session));
+		$this->setCookie($this->getCookieName(), json_encode($this->session));
 	}
 
 	public function getAccessToken() {
@@ -215,11 +217,17 @@ class FUN
 		$session = $this->getSession();
 		return '?logout='. md5(time());
 	}
+
+	/*
+	 * plus api_url to recongnize testing or production cookies
+	 */
+	function getCookieName(){
+		return sprintf('fun_%s_%s', $this->getAppId() ,$this->API_URL);
+	}
 	public function logout(){
-		$cookieName = $this->getAppId().'_funsession';
-                $this->log(sprintf('logout: unset cookie(%s)', $cookieName));
+                $this->log(sprintf('logout: unset cookie(%s)', $this->getCookieName()));
                 //unset($_COOKIE[$cookieName] );
-                setcookie($cookieName, '', time()-36000);
+                setcookie($this->getCookieName(), '', time()-36000);
 	}
 
 	public function getGameMallUrl(){
@@ -275,7 +283,6 @@ class FUN
 
 
 	protected function makeRequest($url, $params, $method="GET") {
-		$this->log('curl: '. $url);
 		$ch = curl_init();
 		$opts = array(
 				CURLOPT_CONNECTTIMEOUT => 10,
@@ -300,10 +307,14 @@ class FUN
 				break;
 		}
 
+		$pureUrl = $url;
 		if($method!="POST")
 		{
-			$url.="?".http_build_query($params, null, '&');
+			$params = http_build_query($params, null, '&');
+			$url.="?".$params;
 		}
+		$this->log(sprintf('connect: %s <br/> &nbsp;url: %s <br/> &nbsp;param: %s', $url, $pureUrl, $params));
+
 		$opts[CURLOPT_URL] = $url;
 
 		if (isset($opts[CURLOPT_HTTPHEADER])) {
@@ -319,6 +330,8 @@ class FUN
 		$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		$this->log(sprintf('done :%s result:%s ',  $code , $result));
 		if ($code != 200) {
+if($code == 401)
+	$this->logout();
 			$e = new ApiException(array(
 						'error_code' => $code,
 						'error_description'=> $result)
@@ -339,6 +352,7 @@ class FUN
 	 * @return void
 	 */
 	private function setCookie($name, $value) {
+		$this->log(sprintf('[setCookie] name: %s value: %s',$name,$value));
 		$mtime = explode(' ', microtime());
 		setcookie($name, $value, $mtime[1]+intval(30*60*1000));
 	}
