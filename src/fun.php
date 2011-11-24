@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.10
- * updated: 2011/11/22
+ * version: v1.2.11
+ * updated: 2011/11/23
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
@@ -127,7 +127,7 @@ class FUN
 		}else if (isset($_COOKIE[$this->getCookieName()])){
 			$this->log('[getSession]from cookie');
 			$session = json_decode(
-					stripslashes($_COOKIE[$this->getAppId().'_funsession']),
+					stripslashes($_COOKIE[$this->getCookieName()]),
 					true
 					);
 		}
@@ -214,7 +214,6 @@ class FUN
 	}
 
 	public function getLogoutUrl(){
-		$session = $this->getSession();
 		return '?logout='. md5(time());
 	}
 
@@ -222,7 +221,8 @@ class FUN
 	 * plus api_url to recongnize testing or production cookies
 	 */
 	function getCookieName(){
-		return sprintf('fun_%s_%s', $this->getAppId() ,$this->API_URL);
+		$env = ($this->testing)?"teseting":"production";
+		return sprintf('fun_%s_%s', $this->getAppId(), $env);
 	}
 	public function logout(){
                 $this->log(sprintf('logout: unset cookie(%s)', $this->getCookieName()));
