@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.2.11
- * updated: 2011/11/23
+ * version: v1.3.1
+ * updated: 2011/11/28
  */
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
@@ -82,7 +82,7 @@ class FUN
 	}
 
 	public function getSession() {
-		$this->log('[getSession]');
+		$this->log('[getSession] start');
 		if ($this->session)
 			return $this->session;
 
@@ -125,14 +125,10 @@ class FUN
 					true
 					);
 		}else if (isset($_COOKIE[$this->getCookieName()])){
-			$this->log('[getSession]from cookie');
-			$session = json_decode(
-					stripslashes($_COOKIE[$this->getCookieName()]),
-					true
-					);
+			$this->log('[getSession]from cookie - ' . $this->getCookieName());
+			$session = json_decode( stripslashes($_COOKIE[$this->getCookieName()]), true);
 		}
 
-		$this->log($this->getCookieName());
 		//if session
 		if($session){
 			//vlidate access token
@@ -221,13 +217,14 @@ class FUN
 	 * plus api_url to recongnize testing or production cookies
 	 */
 	function getCookieName(){
-		$env = ($this->testing)?"teseting":"production";
+		$env = ($this->testing)?"testing":"production";
 		return sprintf('fun_%s_%s', $this->getAppId(), $env);
 	}
 	public function logout(){
                 $this->log(sprintf('logout: unset cookie(%s)', $this->getCookieName()));
                 //unset($_COOKIE[$cookieName] );
-                setcookie($this->getCookieName(), '', time()-36000);
+//                setcookie($this->getCookieName(), '', time()-36000);
+		$this->clearCookie($this->getCookieName());
 	}
 
 	public function getGameMallUrl(){
@@ -353,8 +350,9 @@ if($code == 401)
 	 */
 	private function setCookie($name, $value) {
 		$this->log(sprintf('[setCookie] name: %s value: %s',$name,$value));
-		$mtime = explode(' ', microtime());
-		setcookie($name, $value, $mtime[1]+intval(30*60*1000));
+		//$mtime = explode(' ', microtime());
+		//setcookie($name, $value, $mtime[1]+intval(30*60*1000));
+		setcookie($name, $value, $time +intval(30*60*1000));
 	}
 
 	/**
@@ -365,8 +363,11 @@ if($code == 401)
 	 * @return void
 	 */
 	private function clearCookie($name) {
-		setcookie($name);
-		setcookie($name, "", time() - 3600);
+		$this->log('[clear cookie] cookie name:' . $name);
+		$mtime = explode(' ', microtime());
+		setcookie($name, '');
+		setcookie($name, "", $mtime[1] - 3600);
+		setcookie($name, '', time() + 3600, "/~rasmus/", ".example.com", 1);
 	}
 
 	/**
