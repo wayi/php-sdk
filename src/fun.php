@@ -261,7 +261,7 @@ class FUN
 	 * 蕞API
 	 * @return string
 	 */
-	public function Api($path, $method = 'GET', $params = array()) {
+	public function api($path, $method = 'GET', $params = array()) {
 		$this->logger->info(sprintf(sprintf('[api] %s %s ', $path, $method)));
 
 		$params['method'] = $method;
@@ -284,8 +284,8 @@ class FUN
 		}
 
 		return $result;
-	}
 
+	}
 
 	protected function makeRequest($url, $params, $method="GET") {
 		$ch = curl_init();

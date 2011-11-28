@@ -7,7 +7,6 @@ $config = array(
 	'appId'  	=> '421',                                 //your app id
 	'secret' 	=> '9f8d818cbb65c83d6b84cb89f001b99e',    //you app secret'
 	'redirect_uri'	=> 'http://api.fun.wayi.com.tw/example/api/webgame/app.php',
-	//'debugging'		=> true,
 );
 
 //3.實體化
@@ -18,8 +17,8 @@ $session = $fun->getSession();
 if($session){
 	//5.調用api(取得好友)
 	try {
-		$me = $fun->Api('/v1/me/user','GET');
-		$friends = $fun->Api('/v1/me/friends/app/','GET',array("start"=>0,"count"=>10));
+		$me = $fun->api('/v1/me/user','GET');
+		$friends = $fun->api('/v1/me/friends/app/','GET',array("start"=>0,"count"=>10));
 
 		$logoutUrl = $fun->getLogoutUrl();
 	} catch (ApiException $e) {
