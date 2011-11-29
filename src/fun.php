@@ -2,7 +2,7 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.3.3
+ * version: v1.4.0
  * updated: 2011/11/29
  */
 include 'Fb.php';
@@ -28,6 +28,7 @@ class FUN
 	protected $appId;
 	protected $apiSecret;
  	protected $redirectUri;
+	protected $keepCookie = true;
 
 	protected $session;		//user login status(access_token)
 	protected $fileUploadSupport; 	//support file upload
@@ -47,6 +48,11 @@ class FUN
 		//logout
 		if(isset($_GET['logout']))
 			$this->logout();
+
+		if(isset($config['keepCookie']) && ($config['keepCookie'] == false)){
+			$this->logger->info('do not keep cookie information');
+			$this->keepCookie = false;
+		}
 
 		if(isset($config['testing']) && $config['testing']){
 			$this->testing = true;
@@ -133,7 +139,7 @@ class FUN
 					: urldecode($_REQUEST['session']),
 					true
 					);
-		}else if (isset($_COOKIE[$this->getCookieName()])){
+		}else if ( $this->keepCookie && isset($_COOKIE[$this->getCookieName()])){
 			$this->logger->info('[getSession] get session form cookie ' . $this->getCookieName());
 			$session = json_decode( stripslashes($_COOKIE[$this->getCookieName()]), true);
 		}
