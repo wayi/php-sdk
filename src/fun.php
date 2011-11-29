@@ -2,11 +2,11 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.3.2
- * updated: 2011/11/28
+ * version: v1.3.3
+ * updated: 2011/11/29
  */
 include 'Fb.php';
-
+ob_start();	//or FirePHP will failed
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
 	throw new Exception('FUN needs the CURL PHP extension.');
@@ -284,7 +284,6 @@ class FUN
 		}
 
 		return $result;
-
 	}
 
 	protected function makeRequest($url, $params, $method="GET") {
