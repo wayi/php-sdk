@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.4.0
- * updated: 2011/11/29
+ * version: v1.4.1
+ * updated: 2011/11/30
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -66,7 +66,6 @@ class FUN
 	 *	getter & setter
 	 */ 
 	public function getApiUrl(){
-		return (isset($config['testing']) && $config['testing'])? self::API_URL_TESTING:self::API_URL_PRODUCTION;
 		return $this->API_URL;
 	}
 
