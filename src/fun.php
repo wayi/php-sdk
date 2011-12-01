@@ -45,21 +45,24 @@ class FUN
 		$this->setApiSecret($config['secret']);
 		$this->setRedirectUri($config['redirect_uri']);
 
-		//logout
-		if(isset($_GET['logout']))
-			$this->logout();
-
+	
 		if(isset($config['keepCookie']) && ($config['keepCookie'] == false)){
 			$this->logger->info('do not keep cookie information');
 			$this->keepCookie = false;
 		}
 
 		if(isset($config['testing']) && $config['testing']){
+			$this->logger->info('it is testing');
 			$this->testing = true;
 			$this->API_URL = self::API_URL_TESTING;
 		}else{
 			$this->API_URL = self::API_URL_PRODUCTION;
 		}
+
+		//afeter testing parameter is read
+		if(isset($_GET['logout']))
+			$this->logout();
+
 	}
 
 	/*
