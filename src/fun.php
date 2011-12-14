@@ -2,11 +2,12 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.4.1
- * updated: 2011/11/30
+ * version: v1.4.2
+ * updated: 2011/12/14
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
+session_start();
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
 	throw new Exception('FUN needs the CURL PHP extension.');
@@ -17,6 +18,7 @@ if (!function_exists('json_decode')) {
 
 class FUN
 {
+	const API_VERSION = '1.4.2';
 	/**
 	 * API_URL
 	 */
@@ -37,7 +39,7 @@ class FUN
 	private $logger;
 	public function __construct($config) {
 		$this->logger = FirePHP::getInstance(true);
-		$this->logger->info('start fun php-sdk ...');
+		$this->logger->info(sprintf('%s start fun php-sdk(%s) ...',date('Y-m-d H:i:s '), self::API_VERSION));
 
 		//parameters
 		$this->config = $config;
@@ -105,8 +107,14 @@ class FUN
 			return $this->session;
 
 		$session = array();
-		if (isset($_GET['code']))
-		{
+
+		if (isset($_SESSION[$this->getCookieName()])){
+			$this->logger->info('[getSession] get session form session' . $this->getCookieName());
+			$session = $_SESSION[$this->getCookieName()];
+		}else if ( $this->keepCookie && isset($_COOKIE[$this->getCookieName()])){
+			$this->logger->info('[getSession] get session form cookie ' . $this->getCookieName());
+			$session = json_decode( stripslashes($_COOKIE[$this->getCookieName()]), true);
+		}else if (isset($_GET['code'])){
 			$this->logger->info('[getSession] get code');
 			//auth_code exchange token
 			$params = array(
@@ -134,16 +142,13 @@ class FUN
 				$this->logger->info('[getSession] skey done');
 			}
 		}else if (isset($_REQUEST['session'])){
-			$this->logger->info('[getSession] get session form session');
+			$this->logger->info('[getSession] get session form fun session');
 			$session = json_decode(
 					get_magic_quotes_gpc()
 					? stripslashes(urldecode($_REQUEST['session']))
 					: urldecode($_REQUEST['session']),
 					true
 					);
-		}else if ( $this->keepCookie && isset($_COOKIE[$this->getCookieName()])){
-			$this->logger->info('[getSession] get session form cookie ' . $this->getCookieName());
-			$session = json_decode( stripslashes($_COOKIE[$this->getCookieName()]), true);
 		}
 
 		//if session
@@ -192,7 +197,8 @@ class FUN
 	 * @return void
 	 */
 	public function setSession($session=null) {
-		$this->session = (array) $session;
+		$this->session = (array) $session;	//casting type will preventing avoiding object or array type
+		$_SESSION[$this->getCookieName()] = $this->session;
 		$this->setCookie($this->getCookieName(), json_encode($this->session));
 	}
 
@@ -239,6 +245,9 @@ class FUN
 	}
 	public function logout(){
 		$this->logger->info(sprintf('[logout] unset cookie(%s)', $this->getCookieName()));
+//		$_SESSION[$this->getCookieName()] = $this->session;
+session_unset();
+    session_destroy();
 		$this->clearCookie($this->getCookieName());
 	}
 
