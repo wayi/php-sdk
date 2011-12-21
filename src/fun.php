@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v1.4.2
- * updated: 2011/12/14
+ * version: v1.4.3
+ * updated: 2011/12/21
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -18,7 +18,7 @@ if (!function_exists('json_decode')) {
 
 class FUN
 {
-	const API_VERSION = '1.4.2';
+	const API_VERSION = '1.4.3';
 	/**
 	 * API_URL
 	 */
@@ -245,9 +245,6 @@ class FUN
 	}
 	public function logout(){
 		$this->logger->info(sprintf('[logout] unset cookie(%s)', $this->getCookieName()));
-//		$_SESSION[$this->getCookieName()] = $this->session;
-session_unset();
-    session_destroy();
 		$this->clearCookie($this->getCookieName());
 	}
 
@@ -388,6 +385,10 @@ session_unset();
 	 * @return void
 	 */
 	private function clearCookie($name) {
+		$this->logger->info(sprintf('[clear session] session(%s)' , $name));
+		session_unset();
+		session_destroy();
+
 		$this->logger->info(sprintf('[clear cookie] cookie(%s)' , $name));
 		setcookie($name, '');
 		setcookie($name, '', time() - 3600*24*365);
