@@ -45,7 +45,8 @@ class FUN
 		$this->config = $config;
 		$this->setAppId($config['appId']);
 		$this->setApiSecret($config['secret']);
-		$this->setRedirectUri($config['redirect_uri']);
+		if(!$this->setRedirectUri($config['redirect_uri']))
+			die('redirect uri is invalid');	
 
 	
 		if(isset($config['keepCookie']) && ($config['keepCookie'] == false)){
@@ -93,8 +94,15 @@ class FUN
 	}
 
 	public function setRedirectUri($uri = '') {
+		//need http:// 
+		if(!$this->isValidURL($uri))
+			return false;
 		$this->redirectUri = $uri;
 		return $this;
+	}
+	function isValidURL($url)
+	{
+		return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
 	}
 
 	public function getRedirectUri() {
@@ -124,7 +132,6 @@ class FUN
 					'client_id' 	=> $this->appId,
 					'client_secret' => $this->apiSecret
 				       );
-
 			$result = json_decode($this->makeRequest($this->API_URL.'oauth/token', $params, $method="GET"));
 			
 			if (is_array($result) && isset($result['error'])) {
@@ -135,12 +142,6 @@ class FUN
 
 			$session = $result;
 
-			//if currency is on, check is it vaild and append skey
-			if(isset($_REQUEST['skey'])){
-				$session = (array)$session;
-				$session['skey'] = $_REQUEST['skey'];
-				$this->logger->info('[getSession] skey done');
-			}
 		}else if (isset($_REQUEST['session'])){
 			$this->logger->info('[getSession] get session form fun session');
 			$session = json_decode(
@@ -149,6 +150,13 @@ class FUN
 					: urldecode($_REQUEST['session']),
 					true
 					);
+		}
+
+		//if currency is on, check is it vaild and append serial
+		if(isset($_REQUEST['serial'])){
+			$session = (array)$session;
+			$session['serial'] = $_REQUEST['serial'];
+			$this->logger->info('[getSession] serial done');
 		}
 
 		//if session
@@ -169,10 +177,10 @@ class FUN
 		return isset($this->config['currency']);
 	}
 
-	function getCurrencySkey(){
-		//echo $_SESSION['fun']['api']['skey'];
-		if(isset($this->session['skey'])){
-			return $this->session['skey'];
+	function getCurrencySerial(){
+		//echo $_SESSION['fun']['api']['serial'];
+		if(isset($this->session['serial'])){
+			return $this->session['serial'];
 		}
 		return false;
 
@@ -185,7 +193,7 @@ class FUN
 		if(!$this->getCurrencySkey())
 			return $this->getLoginUrl();
 
-		$result = $this->Api('/v1/me/currency','GET',array('skey' => $this->getCurrencySkey()));
+		$result = $this->Api('/v1/me/currency','GET',array('serial' => $this->getCurrencySkey()));
 
 		return $result;
 	}
