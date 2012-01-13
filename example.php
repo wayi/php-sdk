@@ -6,8 +6,7 @@ require 'src/fun.php';
 $config = array(
 	'appId'  	=> '421',                                 //your app id
 	'secret' 	=> '9f8d818cbb65c83d6b84cb89f001b99e',    //you app secret'
-	'redirect_uri'	=> 'http://api.fun.wayi.com.tw/example/api/webgame/app.php',
-	//'keepCookie'	=> 'false'
+	'redirect_uri'	=> 'http://you_app_url/index.php',
 );
 
 //3.實體化
