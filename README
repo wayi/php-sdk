@@ -8,3 +8,34 @@ parameters in config
 	debugging	
 		show logs by FirePHP
 
+change log
+	2012-2-8 php-sdk 2.0.0
+		[modify]依app後台設定，讀取正式機或測試機，不再依參數testing改變
+
+	2011-12-21
+
+	    php-sdk 1.4.3
+		[bug] clear cookie 未清session
+	    php-sdk 1.4.2
+		[add] 加入session機制
+
+	2011-11-29
+
+	    php-sdk 1.4.0
+		[add] keepCookie - 保持與fun名片同步登入
+
+	2011-11-28
+
+	    php-sdk 1.3.2
+		[modify]改用FirePHP記錄log資訊
+	    php-sdk 1.3.1
+		[bug]修正無法logout問題
+
+	2011-11-18
+
+	    php-sdk 1.2.6
+		[bug]修正session時為object,時為array問題，統一為array
+		[bug]修正php-sdk發feed時為404
+		[insert]加上內測機參數
+
+
