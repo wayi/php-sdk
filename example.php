@@ -4,9 +4,9 @@ require 'src/fun.php';
 
 //2.基本設定
 $config = array(
-	'appId'  	=> '421',                                 //your app id
-	'secret' 	=> '9f8d818cbb65c83d6b84cb89f001b99e',    //you app secret'
-	'redirect_uri'	=> 'http://you_app_url/index.php',
+	'appId'  	=> 'YOUR_APP_ID',        //your app id
+	'secret' 	=> 'YOUR_APP_SECRET',    //you app secret'
+	'redirect_uri'	=> 'YOUR_REDIRECT_URI'
 );
 
 //3.實體化
