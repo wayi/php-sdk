@@ -7,7 +7,6 @@
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
-session_start();
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 if (!function_exists('curl_init')) {
 	throw new Exception('FUN needs the CURL PHP extension.');
@@ -15,6 +14,9 @@ if (!function_exists('curl_init')) {
 if (!function_exists('json_decode')) {
 	throw new Exception('FUN needs the JSON PHP extension.');
 }
+
+if(!isset($_SESSION)) 
+	session_start();
 
 class FUN
 {
