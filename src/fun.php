@@ -67,9 +67,12 @@ class FUN
 
 	}
 	private function getAppEnv(){		
-		$url = sprintf('%sdispatcher/%d/%s',self::API_URL, $this->appId, self::API_VERSION);
+		$url = sprintf('%sdispatcher/%d',self::API_URL, $this->appId);
 		//$url = 'http://10.0.2.106/kevyu/api/webapi/dispatcher/' . $this->appId;
-		$params = array();
+		$params = array(
+			'sdk'		=> 'php-sdk',
+			'version'	=> self::API_VERSION
+		);
 		$app_env = $this->makeRequest($url, $params, $method="GET"); 
 			
 		$app_env = json_decode($app_env, true);
