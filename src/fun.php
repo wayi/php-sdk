@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v2.0.0
- * updated: 2011/2/8 
+ * version: v2.0.1
+ * updated: 2011/2/16 
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -20,7 +20,7 @@ if(!isset($_SESSION))
 
 class FUN
 {
-	const API_VERSION = '2.0.0';
+	const API_VERSION = '2.0.1';
 	/**
 	 * API_URL
 	 */
