@@ -20,11 +20,11 @@ if(!isset($_SESSION))
 
 class FUN
 {
-	const API_VERSION = '2.0.1';
+	const API_VERSION = '2.0.2';
 	/**
 	 * API_URL
 	 */
-	const API_URL = 'http://api.fun.wayi.com.tw/';
+	const URL_API = 'http://api.fun.wayi.com.tw/';
 	const URL_GAME_MALL = 'http://gamemall.wayi.com.tw/shopping/default.asp?action=wgs_list'; 
 	private $API_URL;
 	protected $testing = false;
@@ -69,7 +69,7 @@ class FUN
 
 	}
 	private function getAppEnv(){		
-		$url = sprintf('%sdispatcher/%d',self::API_URL, $this->appId);
+		$url = sprintf('%sdispatcher/%d',self::URL_API, $this->appId);
 		//$url = 'http://10.0.2.106/kevyu/api/webapi/dispatcher/' . $this->appId;
 		$params = array(
 			'sdk'		=> 'php-sdk',
@@ -78,10 +78,21 @@ class FUN
 		$app_env = $this->makeRequest($url, $params, $method="GET"); 
 			
 		$app_env = json_decode($app_env, true);
+
+		if(!isset($app_env['api'])){
+			$e = new ApiException(array(
+				'error_code' => '2000',
+				'error_description'=> 'f8d api server is not responding.')
+			);
+
+			throw $e;
+		}
+
 		if(isset($app_env['env']) && $app_env['env'] == 'testing'){
 			$this->logger->warn('it is under testing');
 			$this->testing = true;
 		}
+
 		return $app_env['api'];
 	}
 
