@@ -28,6 +28,7 @@ if($session){
 	}
 }else{
 	$loginUrl = $fun->getLoginUrl();
+	header( 'Location: ' . $fun->getLoingUrl());
 }
 
 ?>
