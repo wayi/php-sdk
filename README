@@ -1,5 +1,5 @@
 $config = array(
-	'appId'  	=> 'YOUR_APPID',                                 //your app id
+	'appId'  	=> YOUR_APPID,                                 //your app id
 	'secret' 	=> 'YOUR_APP_SECRET',    //you app secret'
 	'redirect_uri'	=> 'YOUR_REDIRECT_URI'
 );
