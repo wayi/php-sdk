@@ -1,6 +1,6 @@
 $config = array(
-	'appId'  	=> '421',                                 //your app id
-	'secret' 	=> '9f8d818cbb65c83d6b84cb89f001b99e',    //you app secret'
+	'appId'  	=> 'YOUR_APPID',                                 //your app id
+	'secret' 	=> 'YOUR_APP_SECRET',    //you app secret'
 	'redirect_uri'	=> 'YOUR_REDIRECT_URI'
 );
 
@@ -9,6 +9,9 @@ parameters in config
 		show logs by FirePHP
 
 change log
+	2012-6-25 php-sdk 2.0.3
+		[modify]加強error message
+
 	2012-2-8 php-sdk 2.0.0
 		[modify]依app後台設定，讀取正式機或測試機，不再依參數testing改變
 
