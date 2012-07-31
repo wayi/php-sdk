@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v2.0.3
- * updated: 2012/6/25 
+ * version: v2.0.4
+ * updated: 2012/7/31 
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -20,7 +20,7 @@ if(!isset($_SESSION))
 
 class FUN
 {
-	const API_VERSION = '2.0.3';
+	const API_VERSION = '2.0.4';
 
 	//error code
 
@@ -34,7 +34,7 @@ class FUN
 	/**
 	 * API_URL
 	 */
-	const URL_API = 'http://api.fun.wayi.com.tw/';
+	const URL_API = 'https://api.fun.wayi.com.tw/';
 	const URL_GAME_MALL = 'http://gamemall.wayi.com.tw/shopping/default.asp?action=wgs_list'; 
 	private $API_URL;
 	protected $testing = false;
@@ -271,23 +271,6 @@ class FUN
 		return true;
 	}
 
-
-	function isCurrencyMode(){
-		return isset($this->config['currency']);
-	}
-
-	function getCurrencyUrl(){
-		$this->logger->info('[getCurrencyUrl]get currency url');
-
-		//0.precondition
-		if(!$this->getCurrencySkey())
-			return $this->getLoginUrl();
-
-		$result = $this->Api('/v1/me/currency','GET',array('serial' => $this->getCurrencySkey()));
-
-		return $result;
-	}
-
 	/**
 	 * setup user status
 	 *
@@ -323,15 +306,12 @@ class FUN
 		//0.validate
 		$clean['redirect_uri'] = (isset($this->config['redirect_uri']))?$this->config['redirect_uri']:'';
 		$clean['scope'] =  (empty($this->config['scope']))?'':$this->config['scope'];
-		$clean['game_type'] = (isset($this->config['currency']) && isset($this->config['currency']['game_type']))?$this->config['currency']['game_type']:'';
 
-		//without currency, it will login by session or cookies
 		$params = array(
 				'response_type' => 'code',
 				'redirect_uri' => urlencode($clean['redirect_uri']),
 				'client_id' => urlencode($this->appId),
 				'scope' => urlencode($clean['scope']),
-				'currency' => urlencode($clean['game_type'])
 			       );
 		return $this->API_URL . "oauth/authorize?" .  http_build_query($params);
 	}
