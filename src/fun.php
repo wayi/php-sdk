@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v2.0.4
- * updated: 2012/7/31 
+ * version: v2.0.5
+ * updated: 2012/8/23 
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -20,10 +20,9 @@ if(!isset($_SESSION))
 
 class FUN
 {
-	const API_VERSION = '2.0.4';
+	const API_VERSION = '2.0.5';
 
 	//error code
-
 	const GET_ENV_SERVER_NOT_RESPONSE = 1000;
 	const INIT_APPID_IS_NOT_SET = 2000;
 	const INIT_APPID_IS_NOT_A_NUMBER = 2001;
@@ -31,6 +30,7 @@ class FUN
 
 	const GET_ENV_INVALID_JSON_FORMAT = 2101;
 	const GET_ENV_RESPONSE_INVALID_FORMAT = 2102;
+
 	/**
 	 * API_URL
 	 */

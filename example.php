@@ -15,10 +15,9 @@ $fun = new FUN($config);
 //4.取得並夾帶access token
 $session = $fun->getSession();      
 if($session){
-	//5.調用api(取得好友)
 	try {
 		$me = $fun->api('/v1/me/user','GET');
-		$friends = $fun->api('/v1/me/friends/app/','GET',array("start"=>0,"count"=>10));
+		//$friends = $fun->api('/v1/me/friends/app/','GET',array("start"=>0,"count"=>10)); //api(取得好友)
 
 		$logoutUrl = $fun->getLogoutUrl();
 	} catch (ApiException $e) {
@@ -27,8 +26,7 @@ if($session){
 		exit();
 	}
 }else{
-	$loginUrl = $fun->getLoginUrl();
-	header( 'Location: ' . $fun->getLoingUrl());
+	header( 'Location: ' . $fun->getLoginUrl());
 }
 
 ?>
