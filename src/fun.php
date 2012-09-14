@@ -2,8 +2,8 @@
 /*
  * title: fun.php
  * author: kevyu
- * version: v2.0.5
- * updated: 2012/8/23 
+ * version: v2.0.6
+ * updated: 2012/9/14 
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -20,7 +20,7 @@ if(!isset($_SESSION))
 
 class FUN
 {
-	const API_VERSION = '2.0.5';
+	const API_VERSION = '2.0.6';
 
 	//error code
 	const GET_ENV_SERVER_NOT_RESPONSE = 1000;
@@ -387,10 +387,11 @@ class FUN
 	protected function makeRequest($url, $params, $method="GET") {
 		$ch = curl_init();
 		$opts = array(
-				CURLOPT_CONNECTTIMEOUT => 10,
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_TIMEOUT        => 60,
-				CURLOPT_USERAGENT      => 'funapi'
+				CURLOPT_CONNECTTIMEOUT 	=> 10,
+				CURLOPT_RETURNTRANSFER 	=> true,
+				CURLOPT_TIMEOUT       	=> 60,
+				CURLOPT_USERAGENT      	=> 'Fun Buddy',
+				CURLOPT_SSLVERSION	=> 3
 			     );
 
 		switch ($method) {
