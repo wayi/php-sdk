@@ -1,9 +1,9 @@
 ﻿<?php
 /*
  * title: fun.php
- * author: kevyu
- * version: v2.0.6
- * updated: 2012/9/14 
+ * author: maxint65535/kevyu
+ * version: v2.0.7
+ * updated: 2012/10/17 
  */
 include 'Fb.php';
 ob_start();	//or FirePHP will failed
@@ -20,7 +20,7 @@ if(!isset($_SESSION))
 
 class FUN
 {
-	const API_VERSION = '2.0.6';
+	const API_VERSION = '2.0.7';
 
 	//error code
 	const GET_ENV_SERVER_NOT_RESPONSE = 1000;
@@ -89,7 +89,7 @@ class FUN
 
 			throw $e;
 		}
-		if(!is_int($config['appId'])){
+		if(!$this->isInt($config['appId'])){
 			$e = new ApiException(array(
 				'error_code' => self::INIT_APPID_IS_NOT_A_NUMBER,
 				'error_description'=> 'appid is not a number.')
@@ -194,6 +194,11 @@ class FUN
 	function isValidURL($url)
 	{
 		return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
+	}
+
+	function isInt($value)
+	{
+		return preg_match('/^[0-9]+$/', $value);
 	}
 
 	public function getRedirectUri() {

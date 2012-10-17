@@ -9,6 +9,9 @@ parameters in config
 		show logs by FirePHP
 
 change log
+	2012-10-17 php-sdk 2.0.7
+		[modify]修正appId格式判斷, 接受數字或字串格式
+
 	2012-8-23 php-sdk 2.0.5
 		[modify]修正getLoingUrl拚錯，應為getLoginUrl
 
