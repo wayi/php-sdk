@@ -9,6 +9,9 @@ parameters in config
 		show logs by FirePHP
 
 change log
+	2013-05-07 php-sdk 2.1.0
+		[modify]api網址變更
+
 	2012-10-17 php-sdk 2.0.7
 		[modify]修正appId格式判斷, 接受數字或字串格式
 
